@@ -6,17 +6,17 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Interfaces/OnlineSessionInterface.h"
 
-#include "MultiPlayerSessionsSubsystem.generated.h"
+#include "XMultiPlayerSessionsSubsystem.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class XMULTIPLAYERSESSIONS_API UMultiPlayerSessionsSubsystem : public UGameInstanceSubsystem
+class XMULTIPLAYERSESSIONS_API UXMultiPlayerSessionsSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 public:
-	UMultiPlayerSessionsSubsystem();
+	UXMultiPlayerSessionsSubsystem();
 
 	// To handle session functionality. The menu class will call these
 	void CreateSession(int32 NumPublicConnections, FString MatchType);
@@ -37,6 +37,7 @@ protected:
 
 private:
 	IOnlineSessionPtr SessionInterface;
+	TSharedPtr<FOnlineSessionSettings> LastSessionSettings;
 
 	// To add to the Online Session Interface delegate list.
 	// We' ll bind Our MultiplayerSessionSubsystem internal callbacks to these.

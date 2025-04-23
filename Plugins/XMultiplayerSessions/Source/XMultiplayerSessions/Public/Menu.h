@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
 #include "Menu.generated.h"
 
 /**
@@ -16,6 +17,31 @@ class XMULTIPLAYERSESSIONS_API UMenu : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void MenuSetup();
+	void MenuSetup(int32 NumberOfPublicConnections = 4, FString TypeOfMatch = FString(TEXT("FreeForAll")));
+
+protected:
+	virtual bool Initialize() override;
+
+	virtual void NativeDestruct() override;
+
+private:
+	UPROPERTY(meta = (BindWidget))
+	UButton* Btn_Host;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* Btn_Join;
+
+	UFUNCTION()
+	void HostButtonClicked();
+
+	UFUNCTION()
+	void JoinButtonClicked();
+
+	void Menu_TearDown();
 	
+	// The subsystem designed to handle all online session functionality
+	class UXMultiPlayerSessionsSubsystem* MultiPlayerSessionsSubsystem;
+
+	int32 NumPublicConnections{4};
+	FString MatchType{TEXT("FreeForAll")};
 };
