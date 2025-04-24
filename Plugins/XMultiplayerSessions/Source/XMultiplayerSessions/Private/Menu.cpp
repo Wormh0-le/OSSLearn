@@ -39,6 +39,7 @@ void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FStr
 		MultiPlayerSessionsSubsystem->MultiPlayerOnDestroySessionComplete.AddDynamic(this, &ThisClass::OnDestroySession);
 		MultiPlayerSessionsSubsystem->MultiPlayerOnStartSessionComplete.AddDynamic(this, &ThisClass::OnStartSession);
 	}
+	SessionListItemClass = LoadClass<UUserWidget>(NULL, TEXT("/XMultiplayerSessions/WBP_SessionItem"));
 }
 
 bool UMenu::Initialize()

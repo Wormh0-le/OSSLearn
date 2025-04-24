@@ -71,5 +71,5 @@ private:
 	FString MatchType{TEXT("FreeForAll")};
 	FString PathToLobby{TEXT("")};
 
-	UClass* SessionListItemClass = LoadClass<UUserWidget>(NULL, TEXT("/XMultiplayerSessions/WBP_SessionItem"));
+	UClass* SessionListItemClass;
 };
