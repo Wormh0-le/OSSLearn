@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
+#include "Components/ScrollBox.h"
+#include "Components/TextBlock.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "Interfaces/OnlineSessionInterface.h"
@@ -31,10 +33,9 @@ protected:
 	UFUNCTION()
 	void OnCreateSession(bool bWasSuccessful);
 
-	void OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
+	void OnRefreshSessionList(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful);
 
-
-	void OnJoinSession(EOnJoinSessionCompleteResult::Type Result);
+	//void OnJoinSession(EOnJoinSessionCompleteResult::Type Result);
 
 	UFUNCTION()
 	void OnDestroySession(bool bWasSuccessful);
@@ -47,13 +48,19 @@ private:
 	UButton* Btn_Host;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* Btn_Join;
+	UButton* Btn_Refresh;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* TitleText;
+
+	UPROPERTY(meta = (BindWidget))
+	UScrollBox* SB_SessionList;
 
 	UFUNCTION()
 	void HostButtonClicked();
 
 	UFUNCTION()
-	void JoinButtonClicked();
+	void RefreshButtonClicked();
 
 	void Menu_TearDown();
 	
@@ -63,4 +70,6 @@ private:
 	int32 NumPublicConnections{4};
 	FString MatchType{TEXT("FreeForAll")};
 	FString PathToLobby{TEXT("")};
+
+	UClass* SessionListItemClass = LoadClass<UUserWidget>(NULL, TEXT("/XMultiplayerSessions/WBP_SessionItem"));
 };

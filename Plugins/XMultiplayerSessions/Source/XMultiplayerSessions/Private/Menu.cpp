@@ -3,6 +3,7 @@
 
 #include "Menu.h"
 #include "XMultiPlayerSessionsSubsystem.h"
+#include "SessionListItem.h"
 
 void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FString LobbyPath)
 {
@@ -33,8 +34,8 @@ void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FStr
 
 	if (MultiPlayerSessionsSubsystem) {
 		MultiPlayerSessionsSubsystem->MultiPlayerOnCreateSessionComplete.AddDynamic(this, &ThisClass::OnCreateSession);
-		MultiPlayerSessionsSubsystem->MultiPlayerOnFindSessionsComplete.AddUObject(this, &ThisClass::OnFindSessions);
-		MultiPlayerSessionsSubsystem->MultiPlayerOnJoinSessionComplete.AddUObject(this, &ThisClass::OnJoinSession);
+		MultiPlayerSessionsSubsystem->MultiPlayerOnFindSessionsComplete.AddUObject(this, &ThisClass::OnRefreshSessionList);
+		//MultiPlayerSessionsSubsystem->MultiPlayerOnJoinSessionComplete.AddUObject(this, &ThisClass::OnJoinSession);
 		MultiPlayerSessionsSubsystem->MultiPlayerOnDestroySessionComplete.AddDynamic(this, &ThisClass::OnDestroySession);
 		MultiPlayerSessionsSubsystem->MultiPlayerOnStartSessionComplete.AddDynamic(this, &ThisClass::OnStartSession);
 	}
@@ -50,9 +51,9 @@ bool UMenu::Initialize()
 	{
 		Btn_Host->OnClicked.AddDynamic(this, &ThisClass::HostButtonClicked);
 	}
-	if (Btn_Join)
+	if (Btn_Refresh)
 	{
-		Btn_Join->OnClicked.AddDynamic(this, &ThisClass::JoinButtonClicked);
+		Btn_Refresh->OnClicked.AddDynamic(this, &ThisClass::RefreshButtonClicked);
 	}
 	return true;
 }
@@ -94,46 +95,77 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 	}
 }
 
-void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
-{
-	if (MultiPlayerSessionsSubsystem == nullptr) {
-		return;
-	}
-	for (auto Result : SessionResults) {
-		FString Id = Result.GetSessionIdStr();
-		FString User = Result.Session.OwningUserName;
-		FString SettingsValue;
-		Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);
+void UMenu::OnRefreshSessionList(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)  
+{  
+   if (MultiPlayerSessionsSubsystem == nullptr) {  
+       return;  
+   }  
+   TitleText->SetText(FText::FromString(TEXT("Room List")));  
+   for (const FOnlineSessionSearchResult& Result : SessionResults) {  
+       FString SettingsValue;  
+       Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);  
 
-		if (SettingsValue == MatchType) {	
-			MultiPlayerSessionsSubsystem->JoinSession(Result);
-			return;
-		}
-	}
-	if (!bWasSuccessful || SessionResults.Num() == 0) {
-		Btn_Join->SetIsEnabled(true);
-	}
+       if (SettingsValue == MatchType) {      
+           FString Id = Result.GetSessionIdStr();  
+           FString HostUserName = Result.Session.OwningUserName;  
+           int32 MaxUsers = Result.Session.SessionSettings.NumPublicConnections;  
+           int32 CurrentUsers = MaxUsers - Result.Session.NumOpenPublicConnections;  
+           FString LatencyStr = FString::Printf(TEXT("%dms"), Result.PingInMs);  
+           FString UserCountStr = FString::Printf(TEXT("%d/%d"), CurrentUsers, MaxUsers);  
+
+           USessionListItem* SessionItem = CreateWidget<USessionListItem>(this, SessionListItemClass);  
+           if (SessionItem) {  
+               TSharedPtr<FOnlineSessionSearchResult> ResultPtr = MakeShared<FOnlineSessionSearchResult>(Result);  
+               SessionItem->SessionListItemSetup(Id, HostUserName, UserCountStr, LatencyStr, ResultPtr);  
+               SB_SessionList->AddChild(SessionItem);  
+           }  
+       }  
+   }  
+   if (bWasSuccessful || SessionResults.Num() == 0) {  
+       Btn_Refresh->SetIsEnabled(true);  
+   }
 }
 
-void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
-{
-	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
-	if (Subsystem) {
-		IOnlineSessionPtr SessionInterface = Subsystem->GetSessionInterface();
-		if (SessionInterface.IsValid()) {
-			FString Address;
-			SessionInterface->GetResolvedConnectString(NAME_GameSession, Address);
+//void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
+//{
+//	if (MultiPlayerSessionsSubsystem == nullptr) {
+//		return;
+//	}
+//	for (auto Result : SessionResults) {
+//		FString Id = Result.GetSessionIdStr();
+//		FString User = Result.Session.OwningUserName;
+//		FString SettingsValue;
+//		Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);
+//
+//		if (SettingsValue == MatchType) {	
+//			MultiPlayerSessionsSubsystem->JoinSession(Result);
+//			return;
+//		}
+//	}
+//	if (!bWasSuccessful || SessionResults.Num() == 0) {
+//		Btn_Join->SetIsEnabled(true);
+//	}
+//}
 
-			APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
-			if (PlayerController) {
-				PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
-			}
-		}
-	}
-	if (Result != EOnJoinSessionCompleteResult::Success) {
-		Btn_Join->SetIsEnabled(true);
-	}
-}
+//void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
+//{
+//	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+//	if (Subsystem) {
+//		IOnlineSessionPtr SessionInterface = Subsystem->GetSessionInterface();
+//		if (SessionInterface.IsValid()) {
+//			FString Address;
+//			SessionInterface->GetResolvedConnectString(NAME_GameSession, Address);
+//
+//			APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
+//			if (PlayerController) {
+//				PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+//			}
+//		}
+//	}
+//	if (Result != EOnJoinSessionCompleteResult::Success) {
+//		Btn_Join->SetIsEnabled(true);
+//	}
+//}
 
 void UMenu::OnDestroySession(bool bWasSuccessful)
 {
@@ -152,13 +184,21 @@ void UMenu::HostButtonClicked()
 	}
 }
 
-void UMenu::JoinButtonClicked()
+void UMenu::RefreshButtonClicked()
 {
-	Btn_Join->SetIsEnabled(false);
+	Btn_Refresh->SetIsEnabled(false);
+	TitleText->SetText(FText::FromString(TEXT("Searching for sessions...")));
 	if (MultiPlayerSessionsSubsystem) {
+		SB_SessionList->ClearChildren();
 		MultiPlayerSessionsSubsystem->FindSessions(100000);
 	}
 }
+
+//void UMenu::JoinButtonClicked()
+//{
+//	Btn_Join->SetIsEnabled(false);
+//	
+//}
 
 void UMenu::Menu_TearDown()
 {
