@@ -59,9 +59,9 @@ AOSSLearnCharacter::AOSSLearnCharacter():
 	if (OnlineSubsystem) {
 		OnlineSessionInterface = OnlineSubsystem->GetSessionInterface();
 
-		if (GEngine) {
+		/*if (GEngine) {
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Found subsytem %s"), *OnlineSubsystem->GetSubsystemName().ToString()));
-		}
+		}*/
 		
 	}
 	
