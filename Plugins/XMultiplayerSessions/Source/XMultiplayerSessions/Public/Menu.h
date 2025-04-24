@@ -24,6 +24,10 @@ protected:
 
 	virtual void NativeDestruct() override;
 
+	// Callbacks for the custom delegates on the MultiplayerSessionSubsystem
+	UFUNCTION()
+	void OnCreateSession(bool bWasSuccessful);
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	UButton* Btn_Host;
