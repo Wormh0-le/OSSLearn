@@ -2,8 +2,7 @@
 
 
 #include "XMultiPlayerSessionsSubsystem.h"
-#include "OnlineSessionSettings.h"
-#include "OnlineSubsystem.h"
+
 
 UXMultiPlayerSessionsSubsystem::UXMultiPlayerSessionsSubsystem():
 	CreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete)),

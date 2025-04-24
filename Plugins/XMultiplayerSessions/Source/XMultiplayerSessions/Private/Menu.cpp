@@ -32,6 +32,10 @@ void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch)
 
 	if (MultiPlayerSessionsSubsystem) {
 		MultiPlayerSessionsSubsystem->MultiPlayerOnCreateSessionComplete.AddDynamic(this, &ThisClass::OnCreateSession);
+		MultiPlayerSessionsSubsystem->MultiPlayerOnFindSessionsComplete.AddUObject(this, &ThisClass::OnFindSessions);
+		MultiPlayerSessionsSubsystem->MultiPlayerOnJoinSessionComplete.AddUObject(this, &ThisClass::OnJoinSession);
+		MultiPlayerSessionsSubsystem->MultiPlayerOnDestroySessionComplete.AddDynamic(this, &ThisClass::OnDestroySession);
+		MultiPlayerSessionsSubsystem->MultiPlayerOnStartSessionComplete.AddDynamic(this, &ThisClass::OnStartSession);
 	}
 }
 
@@ -86,6 +90,22 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 			);
 		}
 	}
+}
+
+void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
+{
+}
+
+void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
+{
+}
+
+void UMenu::OnDestroySession(bool bWasSuccessful)
+{
+}
+
+void UMenu::OnStartSession(bool bWasSuccessful)
+{
 }
 
 void UMenu::HostButtonClicked()
