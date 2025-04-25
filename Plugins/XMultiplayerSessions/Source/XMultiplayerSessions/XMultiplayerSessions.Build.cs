@@ -28,6 +28,7 @@ public class XMultiplayerSessions : ModuleRules
 				"Core",
                 "OnlineSubsystem",
 				"OnlineSubsystemSteam",
+				"OnlineSubsystemNull",
 				"UMG",
 				"Slate",
 				"SlateCore"

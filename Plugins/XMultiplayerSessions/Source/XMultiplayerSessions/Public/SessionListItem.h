@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -20,8 +20,7 @@ class XMULTIPLAYERSESSIONS_API USessionListItem : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	
-	void SessionListItemSetup(FString& SessionNameStr, FString& HostUserNameStr, FString& UserCountStr, FString& LatencyStr, TSharedPtr<FOnlineSessionSearchResult>& SessionResultPtr);
+	void SessionListItemSetup(FString& HostUserNameStr, FString& UserCountStr, FString& LatencyStr, TSharedPtr<FOnlineSessionSearchResult> SessionResult);
 
 protected:
 	virtual bool Initialize() override;
@@ -33,9 +32,6 @@ protected:
 private:
 	UPROPERTY(meta = (BindWidget))
 	UButton* Btn_Join;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* SessionName;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HostUserName;

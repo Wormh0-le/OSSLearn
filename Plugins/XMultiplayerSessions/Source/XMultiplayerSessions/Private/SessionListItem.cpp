@@ -1,11 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "SessionListItem.h"
 
 #include "XMultiPlayerSessionsSubsystem.h"
 
-void USessionListItem::SessionListItemSetup(FString& SessionNameStr, FString& HostUserNameStr, FString& UserCountStr, FString& LatencyStr, TSharedPtr<FOnlineSessionSearchResult>& SessionResultPtr)
+void USessionListItem::SessionListItemSetup(FString& HostUserNameStr, FString& UserCountStr, FString& LatencyStr, TSharedPtr<FOnlineSessionSearchResult> SessionResultPtr)
 {
 	UGameInstance* GameInstance = GetGameInstance();
 	if (GameInstance)
@@ -15,10 +15,15 @@ void USessionListItem::SessionListItemSetup(FString& SessionNameStr, FString& Ho
 	if (MultiPlayerSessionsSubsystem) {
 		MultiPlayerSessionsSubsystem->MultiPlayerOnJoinSessionComplete.AddUObject(this, &ThisClass::OnJoinSession);
 	}
-	SessionName->SetText(FText::FromString(SessionNameStr));
-	HostUserName->SetText(FText::FromString(HostUserNameStr));
-	UserCount->SetText(FText::FromString(UserCountStr));
-	Latency->SetText(FText::FromString(LatencyStr));
+	if (HostUserName) {
+		HostUserName->SetText(FText::FromString(HostUserNameStr));
+	}
+	if (UserCount) {
+		UserCount->SetText(FText::FromString(UserCountStr));
+	}
+	if (Latency) {
+		Latency->SetText(FText::FromString(LatencyStr));
+	}
 	SessionResult = SessionResultPtr;
 }
 

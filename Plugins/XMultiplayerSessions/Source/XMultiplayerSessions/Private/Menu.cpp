@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Menu.h"
@@ -13,6 +13,7 @@ void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FStr
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
 	SetIsFocusable(true);
+	SetRenderScale({0.75, 0.75});
 
 	UWorld* World = GetWorld();
 	if(World) {
@@ -39,7 +40,6 @@ void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FStr
 		MultiPlayerSessionsSubsystem->MultiPlayerOnDestroySessionComplete.AddDynamic(this, &ThisClass::OnDestroySession);
 		MultiPlayerSessionsSubsystem->MultiPlayerOnStartSessionComplete.AddDynamic(this, &ThisClass::OnStartSession);
 	}
-	SessionListItemClass = LoadClass<UUserWidget>(NULL, TEXT("/XMultiplayerSessions/WBP_SessionItem"));
 }
 
 bool UMenu::Initialize()
@@ -101,26 +101,27 @@ void UMenu::OnRefreshSessionList(const TArray<FOnlineSessionSearchResult>& Sessi
    if (MultiPlayerSessionsSubsystem == nullptr) {  
        return;  
    }  
-   TitleText->SetText(FText::FromString(TEXT("Room List")));  
+   TitleText->SetText(FText::FromString(TEXT("房间列表"))); 
+   SB_SessionList->ClearChildren();
    for (const FOnlineSessionSearchResult& Result : SessionResults) {  
-       FString SettingsValue;  
-       Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);  
+       //FString SettingsValue;  
+       //Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);
 
-       if (SettingsValue == MatchType) {      
-           FString Id = Result.GetSessionIdStr();  
-           FString HostUserName = Result.Session.OwningUserName;  
-           int32 MaxUsers = Result.Session.SessionSettings.NumPublicConnections;  
-           int32 CurrentUsers = MaxUsers - Result.Session.NumOpenPublicConnections;  
-           FString LatencyStr = FString::Printf(TEXT("%dms"), Result.PingInMs);  
-           FString UserCountStr = FString::Printf(TEXT("%d/%d"), CurrentUsers, MaxUsers);  
+       //if (SettingsValue == MatchType) {      
+		//FString Id = Result.GetSessionIdStr();
+		FString HostUserName = FString::Printf(TEXT("%s"), *Result.Session.OwningUserName);
+		int32 MaxUsers = Result.Session.SessionSettings.NumPublicConnections;  
+		int32 CurrentUsers = MaxUsers - Result.Session.NumOpenPublicConnections;  
+		FString LatencyStr = FString::Printf(TEXT("%dms"), Result.PingInMs);  
+		FString UserCountStr = FString::Printf(TEXT("%d/%d"), CurrentUsers, MaxUsers);  
 
-           USessionListItem* SessionItem = CreateWidget<USessionListItem>(this, SessionListItemClass);  
-           if (SessionItem) {  
-               TSharedPtr<FOnlineSessionSearchResult> ResultPtr = MakeShared<FOnlineSessionSearchResult>(Result);  
-               SessionItem->SessionListItemSetup(Id, HostUserName, UserCountStr, LatencyStr, ResultPtr);  
-               SB_SessionList->AddChild(SessionItem);  
-           }  
-       }  
+		USessionListItem* SessionItem = CreateWidget<USessionListItem>(this, ItemWidgetClass);  
+		if (SessionItem) {  
+			TSharedPtr<FOnlineSessionSearchResult> ResultPtr = MakeShared<FOnlineSessionSearchResult>(Result);  
+			SessionItem->SessionListItemSetup(HostUserName, UserCountStr, LatencyStr, ResultPtr);
+			SB_SessionList->AddChild(SessionItem);  
+		}  
+       //}  
    }  
    if (bWasSuccessful || SessionResults.Num() == 0) {  
        Btn_Refresh->SetIsEnabled(true);  
@@ -188,7 +189,7 @@ void UMenu::HostButtonClicked()
 void UMenu::RefreshButtonClicked()
 {
 	Btn_Refresh->SetIsEnabled(false);
-	TitleText->SetText(FText::FromString(TEXT("Searching for sessions...")));
+	TitleText->SetText(FText::FromString(TEXT("搜索中...")));
 	if (MultiPlayerSessionsSubsystem) {
 		SB_SessionList->ClearChildren();
 		MultiPlayerSessionsSubsystem->FindSessions(100000);
